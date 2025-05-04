@@ -4,10 +4,14 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
 
+
     <application
         android:label="montreal_tourist"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyB4axr6wKuuQnv_Y5QKtnDeDnJA9MY2l0M"/>
 
 
         <activity
@@ -23,8 +27,7 @@
                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues
                  to determine the Window background behind the Flutter UI. -->
-            <meta-data android:name="com.google.android.geo.API_KEY"
-                android:value="9fc627a945694367a9f83726242608"/>
+
 
 
             <intent-filter>

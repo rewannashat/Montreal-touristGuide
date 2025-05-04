@@ -2,11 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:montreal_tourist/presentation/screens/Home/Main-view/seeAllPlace_view.dart';
 import 'package:montreal_tourist/presentation/screens/Home/Main-viewModel/main_cubit.dart';
 import 'package:montreal_tourist/presentation/screens/Home/Main-viewModel/main_states.dart';
 
 import '../../../resources/font-manager.dart';
 import '../Main-Model/hotelCard_model.dart';
+import 'allMap_view.dart';
+import 'mainDetails_view.dart';
 import 'map_view.dart';
 
 class MainView extends StatelessWidget {
@@ -66,16 +69,21 @@ class MainView extends StatelessWidget {
                       SizedBox(
                         width: 10.h,
                       ),
-                      SizedBox(
-                        width: 50.w,
-                        height: 45.h,
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Color(0xFF979797).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20.r)),
-                          child: Icon(
-                            Icons.location_on,
-                            color: Color(0xffA168BE),
+                      GestureDetector(
+                        onTap: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => AllMapView(),));
+                        },
+                        child: SizedBox(
+                          width: 50.w,
+                          height: 45.h,
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: Color(0xFF979797).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20.r)),
+                            child: Icon(
+                              Icons.location_on,
+                              color: Color(0xffA168BE),
+                            ),
                           ),
                         ),
                       ),
@@ -114,7 +122,7 @@ class MainView extends StatelessWidget {
                                 padding: EdgeInsets.only(right: 12.w),
                                 child: GestureDetector(
                                   onTap: (){
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => MapDirectionPage(),));
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => MainDetailsView(),));
                                   },
                                   child: Material(
                                     elevation: 5,
@@ -233,13 +241,18 @@ class MainView extends StatelessWidget {
                                 fontFamily: 'InriaSans',
                               ),
                             ),
-                            Text(
-                              'See All',
-                              style: TextStyle(
-                                fontSize: 20.sp,
-                                fontWeight: FontWeightManager.semiBold,
-                                color: Color(0xffA168BE),
-                                fontFamily: 'InriaSans',
+                            GestureDetector(
+                              onTap:(){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => SeeAllView(),));
+                              },
+                              child: Text(
+                                'See All',
+                                style: TextStyle(
+                                  fontSize: 20.sp,
+                                  fontWeight: FontWeightManager.semiBold,
+                                  color: Color(0xffA168BE),
+                                  fontFamily: 'InriaSans',
+                                ),
                               ),
                             ),
                           ],

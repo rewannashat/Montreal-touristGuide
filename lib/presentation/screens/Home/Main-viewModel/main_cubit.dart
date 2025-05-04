@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../Main-Model/hotelCard_model.dart';
 import 'main_states.dart';
 
@@ -53,6 +55,23 @@ class MainCubit extends Cubit<MainState> {
       return hotel.category == selectedCategory;
     }).toList();
   }
+
+
+  /// get My location
+  LatLng? userLatLng;
+  Future<LatLng?> getCurrentLocation() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse && permission != LocationPermission.always) {
+        return null;
+      }
+    }
+
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    return LatLng(position.latitude, position.longitude);
+  }
+
 
 
 }

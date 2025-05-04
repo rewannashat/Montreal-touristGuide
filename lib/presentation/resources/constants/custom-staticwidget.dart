@@ -48,7 +48,7 @@ Color changeColor (StatusCase st) {
   return c ;
 }
 final divider = Divider(color:Colors.white.withOpacity(0.3), height:1);
-final dividerList = Divider(color:ColorsManager.greyColor, height: 1);
+final dividerList = Divider(color:ColorsManager.greyColor, height: 12);
 
 loading (double size) {
   return LoadingAnimationWidget.hexagonDots(
