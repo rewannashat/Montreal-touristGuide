@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../resources/font-manager.dart';
+import '../../Home/Main-view/main_view.dart';
 import '../login-model/onBorading_model.dart';
 import '../login_viewModel/login_cubit.dart';
 import '../login_viewModel/login_states.dart';
@@ -108,8 +109,7 @@ class OnBoardingView extends StatelessWidget {
                              children: [
                                TextButton(
                                  onPressed: () {
-                                   cubit.skip();
-                                   Navigator.pushReplacementNamed(context, '/login');
+                                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainView(),));
                                  },
                                  child: Text("Skip" , style:  TextStyle(
                                    fontSize: 15.sp,
