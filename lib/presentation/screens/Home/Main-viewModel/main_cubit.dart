@@ -19,6 +19,20 @@ class MainCubit extends Cubit<MainState> {
   List<Map<String, dynamic>> topHotels = [];
 
 
+  // Add this method to filter based on search query
+  void searchPlaces(String query) {
+    if (query.isEmpty) {
+      // If the search query is empty, we show all places (or topHotels based on the category)
+      filterPlaces();
+    } else {
+      // Filter the places based on name or other fields
+      filteredPlaces = allPlaces.where((place) {
+        return place['name'].toLowerCase().contains(query.toLowerCase());
+      }).toList();
+    }
+    emit(MainSuccess()); // Update the UI with the filtered places
+  }
+
   void selectCategory(int index) {
     selectedCategoryIndex = index;
     filterPlaces();
@@ -31,15 +45,11 @@ class MainCubit extends Cubit<MainState> {
     emit(MainLoading());
     try {
       final snapshot = await FirebaseFirestore.instance
-          .collectionGroup('places') // Searches all subcollections named 'places'
+          .collectionGroup('places')
           .get();
 
       allPlaces = snapshot.docs.map((doc) => doc.data()).toList();
       topHotels = allPlaces.where((place) => place['isTopHotel'] == true).toList();
-      /*print('📦 All places: ${allPlaces.length} === ${topHotels}');
-      for (var place in allPlaces) {
-        print('✅ Place: ${place['name']}, isTopHotel: ${place['isTopHotel']}');
-      }*/
 
       filterPlaces();
       emit(MainSuccess());

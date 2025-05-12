@@ -1,9 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+
+import '../Main-viewModel/main_cubit.dart';
+import '../Main-viewModel/main_states.dart';
 
 class AllMapView extends StatefulWidget {
-
   const AllMapView({super.key});
 
   @override
@@ -11,161 +14,100 @@ class AllMapView extends StatefulWidget {
 }
 
 class _AllMapViewState extends State<AllMapView> {
-
-
   late GoogleMapController mapController;
-
-  final LatLng startPoint = LatLng(45.5017, -73.5673); // Example: Montreal
-  final LatLng endPoint = LatLng(45.5057, -73.5620);   // Example destination
-
-  Set<Marker> _markers = {};
-  Set<Polyline> _polylines = {};
-
-  void _setMarkers() {
-    _markers = {
-      Marker(
-        markerId: MarkerId('start'),
-        position: startPoint,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
-      ),
-      Marker(
-        markerId: MarkerId('end'),
-        position: endPoint,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
-      ),
-    };
-  }
-
-  void _setPolyline() {
-    _polylines = {
-      Polyline(
-        polylineId: PolylineId('route'),
-        color: Colors.purple,
-        width: 5,
-        points: [startPoint, endPoint],
-      ),
-    };
-  }
-
+  Set<Marker> _markers = {}; // To store markers
+  LatLng? _userLocation; // To store user's location
 
   @override
   void initState() {
     super.initState();
-    _setMarkers();
-    _setPolyline();
+    _getUserLocation(); // Fetch the user location on init
+    BlocProvider.of<MainCubit>(context).fetchPlaces(); // Fetch places
   }
 
+  // Method to get the user's location
+  Future<void> _getUserLocation() async {
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    setState(() {
+      _userLocation = LatLng(position.latitude, position.longitude);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        body: BlocBuilder<MainCubit, MainState>(
+          builder: (context, state) {
+            if (state is MainLoading) {
+              return Center(child: CircularProgressIndicator());
+            } else if (state is MainError) {
+              return Center(child: Text('Error: ${state.error}'));
+            } else if (state is MainSuccess) {
+              // Get the places from the cubit
+              final allPlaces = BlocProvider.of<MainCubit>(context).allPlaces;
 
+              // Set markers for all the places
+              _markers = allPlaces.map((place) {
+                return Marker(
+                  markerId: MarkerId(place['name']),
+                  position: LatLng(place['location']['latitude'], place['location']['longitude']),
+                  infoWindow: InfoWindow(title: place['name']),
+                  icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
+                );
+              }).toSet();
 
-    return SafeArea(child: Scaffold(
-      body: Stack(
-        children: [
-          /// Google Map
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: LatLng(45.5031, -73.5650), // centered view
-              zoom: 14,
-            ),
-            markers: _markers,
-            polylines: _polylines,
-            onMapCreated: (controller) {
-              mapController = controller;
-            },
-            zoomControlsEnabled: false,
-            myLocationEnabled: false,
-            compassEnabled: false,
-          ),
-
-          /// Back Button
-          Positioned(
-            top: 40,
-            left: 16,
-            child:  InkWell(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              borderRadius: BorderRadius.circular(50),
-              child: Container(
-                margin: EdgeInsetsDirectional.symmetric(horizontal: 10),
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color:  Color(0xffd0b3de).withOpacity(0.7),
-                ),
-                child: const Icon(
-                  Icons.arrow_back,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ),
-
-          /// Bottom Info Card
-          Positioned(
-            bottom: 24,
-            left: 16,
-            right: 16,
-            child: Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                  )
-                ],
-              ),
-              child: Row(
+              return Stack(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/images/rec.png',
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
+                  GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: _userLocation ?? LatLng(45.5031, -73.5650),
+                      zoom: 14,
+                    ),
+                    markers: _markers,
+                    onMapCreated: (controller) {
+                      mapController = controller;
+                    },
+                    zoomControlsEnabled: false,
+                    myLocationEnabled: true, // Enable location button
+                    compassEnabled: true,
+                    onCameraMove: (position) {
+                      // You can do something with the camera position if needed
+                    },
+                  ),
+                  Positioned(
+                    top: 40,
+                    left: 16,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      borderRadius: BorderRadius.circular(50),
+                      child: Container(
+                        margin: EdgeInsetsDirectional.symmetric(horizontal: 10),
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xffd0b3de).withOpacity(0.7),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.black,
+                        ),
+                      ),
                     ),
                   ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Hilton Garden',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(Icons.location_on_outlined,
-                                color: Colors.purple, size: 16),
-                            SizedBox(width: 4),
-                            Text('500m city center',
-                                style: TextStyle(color: Colors.grey[700])),
-                          ],
-                        ),
-                        SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(Icons.star, color: Colors.orange, size: 16),
-                            SizedBox(width: 4),
-                            Text('4.96 (6.5k review)'),
-                          ],
-                        ),
-                      ],
-                    ),
-                  )
                 ],
-              ),
-            ),
-          ),
-        ],
+              );
+            }
+
+            return Center(child: Text('No places available.'));
+          },
+        ),
       ),
-    ));
+    );
   }
 }

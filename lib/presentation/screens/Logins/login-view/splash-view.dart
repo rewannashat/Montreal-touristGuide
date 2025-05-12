@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Home/Main-view/main_view.dart';
 import 'onBoarding-view.dart';
 
 class SplashView extends StatefulWidget {
@@ -19,7 +21,6 @@ class _SplashScreenState extends State<SplashView>
   void initState() {
     super.initState();
 
-    // Scale animation controller
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -28,13 +29,28 @@ class _SplashScreenState extends State<SplashView>
     _scaleAnimation = Tween<double>(begin: 0.8, end: 2.0)
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
-    // Timer to move to HomeScreen
-    Timer(const Duration(seconds: 3), () {
+    _navigateAfterDelay();
+  }
+
+  Future<void> _navigateAfterDelay() async {
+    await Future.delayed(const Duration(seconds: 3));
+
+    final prefs = await SharedPreferences.getInstance();
+    final isFirstTime = prefs.getBool('is_first_time') ?? true;
+
+    if (isFirstTime) {
+      // Set the flag to false so it doesn't show again
+      await prefs.setBool('is_first_time', false);
       Navigator.pushReplacement(
-         context,
-         MaterialPageRoute(builder: (context) => OnBoardingView()),
-       );
-    });
+        context,
+        MaterialPageRoute(builder: (_) =>  OnBoardingView()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const MainView()),
+      );
+    }
   }
 
   @override

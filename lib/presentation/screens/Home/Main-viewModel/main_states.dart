@@ -15,3 +15,15 @@ class MainError extends MainState {
   MainError(this.error);
 }
 
+/// Map
+
+class MapLoading extends MainState {}
+class MapSuccess extends MainState {}
+class MapError extends MainState {
+  String error ;
+
+  MapError(this.error);
+}
+
+/// Search
+class MainSearchUpdated extends MainState {}
