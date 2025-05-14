@@ -22,22 +22,15 @@ class MapDirectionPage extends StatefulWidget {
 
 class _MapDirectionPageState extends State<MapDirectionPage> {
 
-  LatLng? userLatLng;
 
 
-  @override
-  void initState() {
-    super.initState();
-    MainCubit().getCurrentLocation().then((latLng) {
-      setState(() {
-       userLatLng = latLng;
-      });
-    });
-  }
+
 
 
   @override
   Widget build(BuildContext context) {
+
+    final LatLng userLatLng = LatLng(45.509062, -73.553363);
 
 
 
@@ -103,18 +96,29 @@ class _MapDirectionPageState extends State<MapDirectionPage> {
                         infoWindow: InfoWindow(title: "Hotel Location"),
                         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
                       ),
-                      if (userLatLng != null)
-                        Marker(
-                          markerId: MarkerId("user_location"),
-                          position: userLatLng!,
-                          infoWindow: InfoWindow(title: "You are here"),
-                          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-                        ),
+                      Marker(
+                        markerId: MarkerId("B"),
+                        position: userLatLng,
+                        infoWindow: InfoWindow(title: "City Center"),
+                        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+                      ),
                     },
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: true,
+                    polylines: {
+                      Polyline(
+                        polylineId: PolylineId("route"),
+                        color: Colors.purple,
+                        width: 4,
+                        points: [
+                          widget.targetLatLng,
+                          userLatLng,
+                        ],
+                      ),
+                    },
+                    myLocationEnabled: false,
+                    myLocationButtonEnabled: false,
                     zoomControlsEnabled: false,
                   ),
+
                 ),
               ),
               SizedBox(height: 20.h),

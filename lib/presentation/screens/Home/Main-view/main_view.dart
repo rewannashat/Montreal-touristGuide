@@ -66,9 +66,9 @@ class MainView extends StatelessWidget {
                                 color: Color(0xffA168BE),
                               ),
                             ),
-                            onFieldSubmitted: (value) {
+                           /* onFieldSubmitted: (value) {
                               MainCubit.get(context).searchPlaces(value);
-                            },
+                            },*/
                           ),
                         ),
                       ),
@@ -208,6 +208,8 @@ class MainView extends StatelessWidget {
                               itemCount: cubit.topHotels.length,
                               itemBuilder: (context, index) {
                                 final hotel = cubit.topHotels[index];
+                              //  print('Top Hotels: ${cubit.topHotels}');
+
                                 return Padding(
                                   padding: EdgeInsets.only(right: 12.w),
                                   child: GestureDetector(

@@ -16,24 +16,9 @@ class AllMapView extends StatefulWidget {
 class _AllMapViewState extends State<AllMapView> {
   late GoogleMapController mapController;
   Set<Marker> _markers = {}; // To store markers
-  LatLng? _userLocation; // To store user's location
 
-  @override
-  void initState() {
-    super.initState();
-    _getUserLocation(); // Fetch the user location on init
-    BlocProvider.of<MainCubit>(context).fetchPlaces(); // Fetch places
-  }
 
-  // Method to get the user's location
-  Future<void> _getUserLocation() async {
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-    setState(() {
-      _userLocation = LatLng(position.latitude, position.longitude);
-    });
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +40,7 @@ class _AllMapViewState extends State<AllMapView> {
                   markerId: MarkerId(place['name']),
                   position: LatLng(place['location']['latitude'], place['location']['longitude']),
                   infoWindow: InfoWindow(title: place['name']),
-                  icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
+                  icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
                 );
               }).toSet();
 
@@ -63,7 +48,7 @@ class _AllMapViewState extends State<AllMapView> {
                 children: [
                   GoogleMap(
                     initialCameraPosition: CameraPosition(
-                      target: _userLocation ?? LatLng(45.5031, -73.5650),
+                      target: LatLng(45.5031, -73.5650),
                       zoom: 14,
                     ),
                     markers: _markers,
@@ -71,7 +56,7 @@ class _AllMapViewState extends State<AllMapView> {
                       mapController = controller;
                     },
                     zoomControlsEnabled: false,
-                    myLocationEnabled: true, // Enable location button
+                    myLocationEnabled: true,
                     compassEnabled: true,
                     onCameraMove: (position) {
                       // You can do something with the camera position if needed

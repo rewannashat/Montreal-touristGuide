@@ -19,19 +19,43 @@ class MainCubit extends Cubit<MainState> {
   List<Map<String, dynamic>> topHotels = [];
 
 
-  // Add this method to filter based on search query
-  void searchPlaces(String query) {
-    if (query.isEmpty) {
-      // If the search query is empty, we show all places (or topHotels based on the category)
+
+
+  List<Map<String, dynamic>> get filteredHotels => filteredPlaces;
+
+
+
+  bool _hasFetchedPlaces = false;
+
+  void fetchPlaces() async {
+
+
+    emit(MainLoading());
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('places')
+          .get();
+
+      allPlaces = snapshot.docs.map((doc) => doc.data()).toList();
+
+      // ✅ فقط الأماكن اللي محددة كـ Top Hotel
+      topHotels = allPlaces.where((place) => place['isTopHotel'] == true).toList();
+     // print('the top hotels $topHotels');
+
+
+
+
+
+      // ✅ تصفية حسب التصنيف
       filterPlaces();
-    } else {
-      // Filter the places based on name or other fields
-      filteredPlaces = allPlaces.where((place) {
-        return place['name'].toLowerCase().contains(query.toLowerCase());
-      }).toList();
+
+      emit(MainSuccess());
+    } catch (e) {
+      emit(MainError(e.toString()));
     }
-    emit(MainSuccess()); // Update the UI with the filtered places
   }
+
+
 
   void selectCategory(int index) {
     selectedCategoryIndex = index;
@@ -39,24 +63,6 @@ class MainCubit extends Cubit<MainState> {
     emit(MainCategoryChanged());
   }
 
-  List<Map<String, dynamic>> get filteredHotels => filteredPlaces;
-
-  void fetchPlaces() async {
-    emit(MainLoading());
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collectionGroup('places')
-          .get();
-
-      allPlaces = snapshot.docs.map((doc) => doc.data()).toList();
-      topHotels = allPlaces.where((place) => place['isTopHotel'] == true).toList();
-
-      filterPlaces();
-      emit(MainSuccess());
-    } catch (e) {
-      emit(MainError(e.toString()));
-    }
-  }
 
   void filterPlaces() {
     final selectedCategory = categories[selectedCategoryIndex];
